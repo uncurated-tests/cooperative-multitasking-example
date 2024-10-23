@@ -1,6 +1,24 @@
 import Image from "next/image";
+import { shouldYieldCpu, yieldCpu } from "./cooperative-multitasking";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+async function use1SecondOfCpu() {
+  const start = Date.now();
+  while (Date.now() - start < 1000) {
+    // Insert these 3 lines whereever you use a lot of CPU.
+    // It will require having the parent function be async.
+    if (shouldYieldCpu()) {
+      await yieldCpu();
+    }
+  }
+}
+
+export default async function Home() {
+  for (let i = 0; i < 10; i++) {
+    await use1SecondOfCpu();
+  }
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
